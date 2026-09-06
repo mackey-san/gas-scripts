@@ -88,9 +88,7 @@ function processMessage_(message, claudeApiKey, slackWebhookUrl, logSheet) {
 function classifyEmail_(apiKey, subject, body) {
   const prompt =
     '以下のメールを読み、内容を「クレーム」「質問」「注文」「その他」のいずれか1つに分類してください。\n' +
-    'また、メール内容を1〜2文の日本語で要約してください。\n' +
-    '出力は説明文を含めず、次のJSON形式のみを返してください。\n' +
-    '{"category": "分類結果", "summary": "要約文"}\n\n' +
+    'また、メール内容を1〜2文の日本語で要約してください。\n\n' +
     '件名: ' + subject + '\n' +
     '本文:\n' + body;
 
@@ -99,7 +97,26 @@ function classifyEmail_(apiKey, subject, body) {
     max_tokens: 1024,
     messages: [
       { role: 'user', content: prompt }
-    ]
+    ],
+    // output_config.formatでJSON Schemaを強制し、コードフェンス等の装飾がない
+    // 有効なJSON文字列のみが返るようにする（プロンプト指示だけに頼らない）
+    output_config: {
+      format: {
+        type: 'json_schema',
+        schema: {
+          type: 'object',
+          properties: {
+            category: {
+              type: 'string',
+              enum: ['クレーム', '質問', '注文', 'その他']
+            },
+            summary: { type: 'string' }
+          },
+          required: ['category', 'summary'],
+          additionalProperties: false
+        }
+      }
+    }
   };
 
   const options = {
