@@ -1,0 +1,14 @@
+# clasp credentials (never commit)
+.clasprc.json
+.clasp.json
+
+# Node
+node_modules/
+npm-debug.log*
+
+# OS
+.DS_Store
+
+# Editor
+.vscode/
+.idea/
